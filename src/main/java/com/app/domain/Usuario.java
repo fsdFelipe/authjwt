@@ -1,11 +1,22 @@
 package com.app.domain;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+
+import com.app.domain.enums.Perfil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Usuario implements Serializable{
@@ -16,9 +27,18 @@ public class Usuario implements Serializable{
 	private int id;
 	private String nome;
 	private String email;
+	
+	@JsonIgnore
 	private String senha;
+	
+	@ElementCollection(targetClass = Perfil.class,fetch = FetchType.EAGER)
+	@CollectionTable(name="PERFIL")
+	@Enumerated(EnumType.STRING)
+	private Set<Perfil> perfis = new HashSet<>();
 
-	public Usuario() {}
+	public Usuario() {
+		addPerfil(Perfil.USUARIO);
+	}
 
 	public Usuario(int id, String nome, String email, String senha) {
 		super();
@@ -59,6 +79,13 @@ public class Usuario implements Serializable{
 	public void setSenha(String senha) {
 		this.senha = senha;
 	}
+	
+	public Set<Perfil> getPerfis(){
+		return perfis.stream().collect(Collectors.toSet());
+		}
+	public void addPerfil(Perfil perfil) {
+		perfis.add(perfil);
+		}
 
 	@Override
 	public int hashCode() {
