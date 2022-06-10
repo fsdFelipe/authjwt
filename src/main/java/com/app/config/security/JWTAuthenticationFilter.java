@@ -9,19 +9,26 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.app.config.MyUserDetails;
 import com.app.domain.dto.CredenciaisDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+	
+	private AuthenticationManager authenticationManager;
 
     private JWTUtil jwtUtil;
+    
+    private UserDetailsService userDetailsService;
 
     public JWTAuthenticationFilter(JWTUtil jwtUtil) {
     	setAuthenticationFailureHandler(new JWTAuthenticationFailureHandler());
@@ -49,7 +56,6 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             HttpServletResponse res,
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
-
 		String username = auth.getPrincipal().toString();
         String token = jwtUtil.generateToken(username);
         res.addHeader("Authorization", "Bearer " + token);
